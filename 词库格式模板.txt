@@ -1,0 +1,14 @@
+# 自定义词库名称（这一行可随意修改）
+# 每个 List 必须以“## List 编号”开头。
+# 每个词条占一行，并用 Tab 键分隔：英文单词、词性、中文释义。
+# 不要把多个 List 写在同一个标题下，这样网页才能准确按 List 学习。
+
+## List 1
+delve	vi.	钻研；探究
+exact	adj.	准确的；精确的
+exactly	adv.	恰好地；正是；精确地
+
+## List 2
+elicit	vt.	引出；引起
+intricate	adj.	错综复杂的
+derive	vt.	得到；推导出

@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0e4d4d" />
+  <title>词汇高速筛选 · IELTS V1</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">IELTS VOCABULARY · V1</p>
+        <h1>词汇高速筛选</h1>
+      </div>
+      <div class="top-actions">
+        <button id="pauseBtn" class="quiet-btn" type="button" title="快捷键 P">暂停</button>
+        <button id="exportBtn" class="quiet-btn" type="button">导出记录</button>
+      </div>
+    </header>
+
+    <section class="progress-area" aria-label="学习进度">
+      <div class="progress-copy">
+        <span id="progressText">正在准备词库…</span>
+        <span id="sessionText">本次 0 词</span>
+      </div>
+      <div class="progress-track"><div id="progressBar" class="progress-bar"></div></div>
+    </section>
+
+    <section class="list-control" aria-label="本次学习范围">
+      <div>
+        <p class="control-label">本次学习范围</p>
+        <strong id="activeRangeText">正在整理 List…</strong>
+        <span id="activeRangeHint" class="control-hint"></span>
+      </div>
+      <button id="chooseListsBtn" class="range-btn" type="button">选择 List</button>
+    </section>
+
+    <section class="study-card" aria-live="polite">
+      <div class="word-meta"><span id="positionText">—</span><span id="stateBadge" class="state-badge">新词</span></div>
+      <h2 id="wordText" class="word">加载中</h2>
+      <div id="answerPanel" class="answer-panel is-hidden">
+        <p id="posText" class="pos"></p>
+        <p id="meaningText" class="meaning"></p>
+        <p id="answerNote" class="answer-note"></p>
+      </div>
+      <p id="promptText" class="hint">凭第一反应选择，不用纠结。</p>
+
+      <div id="ratings" class="rating-grid" aria-label="掌握程度">
+        <button class="rating rating-1" type="button" data-rating="1"><kbd>1</kbd><span>秒会</span><small>立即知道</small></button>
+        <button class="rating rating-2" type="button" data-rating="2"><kbd>2</kbd><span>熟悉但犹豫</span><small>想了一下</small></button>
+        <button class="rating rating-3" type="button" data-rating="3"><kbd>3</kbd><span>见过但想不起</span><small>感觉眼熟</small></button>
+        <button class="rating rating-4" type="button" data-rating="4"><kbd>4</kbd><span>完全不会</span><small>需要重学</small></button>
+      </div>
+      <button id="nextBtn" class="next-btn is-hidden" type="button">下一个 <span>Enter / 空格</span></button>
+    </section>
+
+    <section class="stats-section" aria-label="学习统计">
+      <div class="section-heading"><h2>你的词汇画像</h2><span id="updatedText">尚无记录</span></div>
+      <div class="stats-grid">
+        <article><strong id="answeredStat">0</strong><span>已筛选</span></article>
+        <article class="mastered"><strong id="masteredStat">0</strong><span>熟词</span></article>
+        <article class="familiar"><strong id="familiarStat">0</strong><span>不稳定</span></article>
+        <article class="weak"><strong id="weakStat">0</strong><span>薄弱词</span></article>
+        <article class="stubborn"><strong id="stubbornStat">0</strong><span>顽固词</span></article>
+      </div>
+      <p class="stats-note">熟词：至少回答 2 次且熟练度 ≥ 80；顽固词：回答 ≥ 3 次且熟练度 &lt; 35。V1 会保留完整历史，方便后续接入间隔复习。</p>
+    </section>
+
+    <section class="help-panel">
+      <p><b>键盘：</b><kbd>1</kbd>–<kbd>4</kbd> 选择，<kbd>Enter</kbd>/<kbd>空格</kbd> 下一个，<kbd>P</kbd> 暂停。</p>
+      <button id="manageBtn" class="text-btn" type="button">数据与词库管理</button>
+    </section>
+  </main>
+
+  <dialog id="exportDialog" class="modal">
+    <div class="modal-header"><h2>导出学习记录</h2><button class="icon-btn" data-close="exportDialog" type="button" aria-label="关闭">×</button></div>
+    <p>导出文件不含任何账号信息。把 JSON 或 CSV 上传到 ChatGPT，即可分析薄弱词、反应时间和易混方向。</p>
+    <div class="modal-actions"><button id="jsonBtn" class="primary-btn" type="button">导出完整 JSON</button><button id="csvBtn" class="secondary-btn" type="button">导出明细 CSV</button><button id="folderExportBtn" class="secondary-btn" type="button">选择文件夹，保存两份文件</button></div>
+  </dialog>
+
+  <dialog id="listDialog" class="modal">
+    <div class="modal-header"><h2>选择本次要学的 List</h2><button class="icon-btn" data-close="listDialog" type="button" aria-label="关闭">×</button></div>
+    <p>每个 List 约 100 词。程序会尽量在词形相关的连续词条之后分组，避免把明显的派生词拆开。</p>
+    <div class="range-picker"><label>从<select id="rangeStart"></select></label><span>到</span><label><select id="rangeEnd"></select></label></div>
+    <p id="rangePreview" class="range-preview"></p>
+    <div class="modal-actions"><button id="applyRangeBtn" class="primary-btn" type="button">开始这个范围</button></div>
+  </dialog>
+
+  <dialog id="manageDialog" class="modal">
+    <div class="modal-header"><h2>数据与词库管理</h2><button class="icon-btn" data-close="manageDialog" type="button" aria-label="关闭">×</button></div>
+    <p id="libraryInfo">内置词库加载中…</p>
+    <label class="import-label">导入 List 格式的 TXT 词库<input id="importFile" type="file" accept=".txt,text/plain" /></label>
+    <p class="subtle">词库必须用 <code>## List 1</code> 作为每组标题，词条用 Tab 分隔“英文、词性、中文释义”。<a href="词库格式模板.txt" download>下载可编辑模板</a>。导入新词库会新建一份独立学习记录。</p>
+    <hr />
+    <h3>导入以前的学习记录</h3>
+    <p class="subtle">可合并本网站导出的 JSON / CSV。重复记录会自动跳过；只导入当前词库中能匹配的词。</p>
+    <div class="record-import-actions"><label class="import-label compact">选择记录文件<input id="importRecordsFile" type="file" accept=".json,.csv,application/json,text/csv" multiple /></label><label class="import-label compact">选择整个记录文件夹<input id="importRecordsFolder" type="file" accept=".json,.csv,application/json,text/csv" webkitdirectory directory multiple /></label></div>
+    <p id="importStatus" class="subtle" role="status"></p>
+    <button id="resetBtn" class="danger-btn" type="button">清空本词库的学习记录</button>
+  </dialog>
+
+  <script src="vocabulary.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
